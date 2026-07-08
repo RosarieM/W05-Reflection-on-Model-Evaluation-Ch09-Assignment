@@ -1,0 +1,175 @@
+
+---
+title: "M05: Reflection on Ch09 (Evaluation)"
+author: "Rosarie Maramag"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-expand: 1
+    toc-location: right-body
+    toc-title: "Contents"
+    number-sections: true
+    code-fold: show
+    code-tools: true
+    theme: cosmo
+    highlight-style: github
+    df-print: paged
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+  freeze: true
+---
+
+# Executive Summary {.unnumbered}
+
+::: {.callout-note}
+### Quick Overview
+This document serves as my reflection on Chapter 9 regarding model evaluation. I am utilizing the yardstick package to calculate classification metrics and evaluate model performance visually.
+:::
+
+
+# Core Concepts and Mathematical Equations
+
+When evaluating how well a model predicts categories, we look at the balance between finding true positive cases and avoiding false alarms. We can write out the formula for **Sensitivity** (the true positive rate) using LaTeX formatting:
+
+$$Sensitivity = \frac{TP}{TP + FN}$$
+
+> **Key takeaway on Area Under the Curve:** The metric known as ROC AUC helps us see how good the model is at separating different classes regardless of the specific threshold we choose.
+
+
+# Chapter 9 Exercises
+
+## Exercise 9.1
+
+
+### Part A
+Calculate the accuracy and kappa metrics for the binary classification data to get a baseline understanding of how well the model performed overall.
+
+
+::: {.panel-tabset}
+
+### Response
+I used the metrics function to look at both accuracy and kappa simultaneously. Accuracy shows us the straight percentage of correct guesses, while kappa adjusts that score to account for how likely we were to just get lucky by random chance. Looking at the output, the model is performing quite well because both values are high.
+
+### R Code
+```{r}
+library(yardstick)
+library(dplyr)
+library(ggplot2)
+
+# We use the built in dataset to calculate accuracy and kappa
+metrics(two_class_example, truth = truth, estimate = predicted)
+```
+
+:::
+
+
+### Part B
+Calculate the sensitivity and specificity metrics to see how well the model handles each individual class.
+
+
+::: {.panel-tabset}
+
+### Response
+For this part, I calculated sensitivity and specificity. Sensitivity focuses strictly on how well we find the positive class, whereas specificity measures our success rate with the negative class. This breakdown is super helpful because a model can sometimes look great with overall accuracy but actually be terrible at predicting one specific side of the data.
+
+### R Code
+```{r}
+# Calculating sensitivity and specificity together
+two_class_example %>%
+  metrics(truth = truth, estimate = predicted) %>%
+  filter(.metric %in% c("sens", "spec"))
+```
+
+:::
+
+
+## Exercise 9.2
+
+
+### Part A
+Generate a standard confusion matrix to see the raw breakdown of correct and incorrect predictions.
+
+
+::: {.panel-tabset}
+
+### Response
+The confusion matrix gives us the exact raw counts of true positives, true negatives, false positives, and false negatives. It is basically the foundational scoreboard for our classification model.
+
+### R Code
+```{r}
+# Generating the raw confusion matrix matrix 
+conf_mat(two_class_example, truth = truth, estimate = predicted)
+```
+
+:::
+
+
+### Part B
+Convert the confusion matrix into a visual plot so that the results are easier to interpret at a glance.
+
+
+::: {.panel-tabset}
+
+### Response
+I used the autoplot function to turn the matrix into a visual heatmap. This makes it instantly obvious where the model is making the most mistakes by highlighting the error tiles in a different shade.
+
+### R Code
+```{r}
+# Visualizing the confusion matrix using autoplot
+two_class_example %>%
+  conf_mat(truth = truth, estimate = predicted) %>%
+  autoplot(type = "heatmap")
+```
+
+:::
+
+
+## Exercise 9.3
+Compute the Receiver Operating Characteristic curve data and plot it to visualize the trade off between sensitivity and specificity.
+
+
+::: {.panel-tabset}
+
+### Response
+The ROC curve is awesome because it shows us performance across every single possible probability threshold rather than just picking one. The curve bows upward toward the top left corner, which tells us visually that this model has strong predictive power.
+
+### R Code
+```{r}
+# Generating and plotting the ROC curve
+two_class_example %>%
+  roc_curve(truth, Class1) %>%
+  autoplot()
+```
+
+:::
+
+
+## Exercise 9.4
+Calculate the Area Under the ROC Curve metric and explain what this number means for our model.
+
+
+::: {.panel-tabset}
+
+### Response
+The ROC AUC metric condenses the entire curve plot we just made into a single number between 0 and 1. An AUC score close to 1 means the model is nearly perfect at distinguishing between the two classes. Our calculated value is very high, confirming that the model holds excellent discriminatory power.
+
+### R Code
+```{r}
+# Calculating the numeric area under the curve value
+roc_auc(two_class_example, truth, Class1)
+```
+
+:::
+
+
+# Appendix {.unnumbered}
+
+* **Published Report:** [Click Here to View My Live GitHub Pages Site](https://rosariem.github.io/W05-Reflection-on-Model-Evaluation-Ch09-Assignment/Maramag_Rosarie_M05_Table_Viz.html)
+* **Project Source Code:** [Click Here to View My GitHub Repository](https://github.com/rosariem/W05-Reflection-on-Model-Evaluation-Ch09-Assignment)
+
+[^1]: This footnote confirms that all calculations were processed using the standard built in yardstick example data structures.
+```
